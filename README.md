@@ -42,17 +42,17 @@ There were a four outliers of which two are still included in this dataset. The 
 ### Feature engineering
 The first hypothesis that came into my mind when thinking about POI identification was: People that interacted a lot with POIs might be POIs as well. There are three measurable interactions with POIs in the dataset: sending, recieving emails as well as sharing a reciept with a POI. So I translated those interactions into ratios of total emails/receipts to know the relative amount of interactions that were done with POIs. While the email ratios are normal distributed the reciept ratio is skewed:
 
-![interaction_ratios](img/interaction_ratios.png)
+![interaction_ratios](final_project/img/interaction_ratios.png)
 
 When analysing the impact of those new features compared to their original ones using K-best, sent_to_poi_ratio turned out to have the highest impact of all (score: 13.4, p-value 0%), but all other features performed worse:
 
 
-<img src="img/k_best_all_features.png" alt="k_best_all_features" style="width: 300px;"/>
+<img src="final_project/img/k_best_all_features.png" alt="k_best_all_features" style="width: 300px;"/>
 
 ### Feature benchmarking
 I ended up using all features exept the ones I did in the identifier. I started with a set of features selected using the common univariate statistical FPR test for each feature using the standard α = 0.05 cutoff.
 
-<img src="img/k_best_old_features_p_05.png" alt="k_best_old_features_p_05" style="width: 300px;"/>
+<img src="final_project/img/k_best_old_features_p_05.png" alt="k_best_old_features_p_05" style="width: 300px;"/>
 
 That feature selection performed worse than including all features as seen in the table below. I played around with different combinations but ended up using all of the features included in the original dataset as I did not achive higher precision and recall values.
 
