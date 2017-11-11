@@ -10,6 +10,7 @@
 * Handle missing data python - https://machinelearningmastery.com/handle-missing-data-python/
 * Exponents Logarithms - https://www.mathsisfun.com/algebra/exponents-logarithms.html
 * how-to-build-a-simple-spam-detecting-machine-learning-classifier - https://hackernoon.com/how-to-build-a-simple-spam-detecting-machine-learning-classifier-4471fe6b816e
+* Model Validation, Machine Learning - https://link.springer.com/referenceworkentry/10.1007%2F978-1-4419-9863-7_233
 
 ### Cheatsheets
 * Markdown - https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet

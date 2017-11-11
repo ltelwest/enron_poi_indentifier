@@ -24,6 +24,10 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 ### features_list is a list of strings, each of which is a feature name.
 ### The first feature must be "poi".
 
+"""
+Feature Selection & Grouping
+The features in the dataset are split by email and financial features.
+"""
 features_email = ['to_messages', 'from_messages',  'from_poi_to_this_person',
            'from_this_person_to_poi', 'shared_receipt_with_poi']
 # finance data
@@ -39,6 +43,14 @@ features_column_names = ['poi'] + ['email_address'] + features_email + features_
 # all features data type
 features_dtype = [bool] + [str] + list(np.repeat(float, 19))
 
+"""
+Data Load
+This identifier is the outcome of a ipython notebook which can be found in this
+repo & folder (poi_id.ipynb).
+The data will be loaded into a pandas dataframe for easier data wrangling and
+compatability with the notebook.
+"""
+
 ### Load the dictionary containing the dataset
 with open("final_project_dataset.pkl", "r") as data_file:
     data_dict = pickle.load(data_file)
@@ -53,7 +65,11 @@ df = df.loc[:, features_column_names]
 for i in xrange(len(features_column_names)):
     df[features_column_names[i]] = df[features_column_names[i]].astype(features_dtype[i], errors='ignore')
 
-### Task 2: Remove outliers
+"""
+Outlier removal
+During the analysis in the notebook two wrong data points and misaligned data
+for two employees were found which get fixed here.
+"""
 df = df[df.index != 'TOTAL']
 df = df[df.index != 'THE TRAVEL AGENCY IN THE PARK']
 
@@ -64,7 +80,14 @@ df.loc['BHATNAGAR SANJAY', features_finance] = \
     [0, 0, 0, 0, 0, 0, 0, 137864, 0, 137864,
      15456290, 2604490, -2604490, 15456290]
 
-### Task 3: Create new feature(s)
+"""
+Feature creation
+There are three measurable interactions with POIs in the dataset: sending,
+recieving emails as well as sharing a reciept with a POI. Those interactions
+should be translated into ratios that compare them with the total number of each
+type of interaction.
+"""
+
 # calculate ratio
 df['recieved_from_poi_ratio'] = df['from_poi_to_this_person'] / df['to_messages']
 df['sent_to_poi_ratio'] = df['from_this_person_to_poi'] / df['from_messages']
@@ -74,6 +97,12 @@ features_email_new = ['recieved_from_poi_ratio', 'sent_to_poi_ratio', 'shared_re
 features_new = features_finance + features_email_new
 features_basic = features_finance + features_email
 
+
+"""
+Feature scaling & Imputation
+The features will be log scaled and missing values will be replaced with the
+median. See notebook for further explanaition
+"""
 ### Feature scaling
 # log scaling
 for f in features_list:
@@ -84,6 +113,11 @@ for f in features_list:
 df.replace(0, np.NaN)
 df.fillna(df.mean(), inplace=True)
 
+
+"""
+Get sklearn ready dataset
+Transform dataframe to disctionary and define different sets of features.
+"""
 ### Store to my_dataset for easy export below.
 my_dataset = df.to_dict(orient='index')
 
@@ -109,11 +143,11 @@ my_feature_list = ['poi'] + features_basic
 data = featureFormat(my_dataset, my_feature_list, remove_NaN=True, sort_keys = False)
 labels, features = targetFeatureSplit(data)
 
-### Task 4: Try a varity of classifiers
-### Please name your classifier clf for easy export below.
-### Note that if you want to do PCA or other multi-stage operations,
-### you'll need to use Pipelines. For more info:
-### http://scikit-learn.org/stable/modules/pipeline.html
+
+"""
+Algorithm selection
+KMeans, SVC and RandomForestClassifier will be used & compared
+"""
 
 ### selection of classifiers
 # k_clf = KMeans()
@@ -121,12 +155,11 @@ labels, features = targetFeatureSplit(data)
 # rf_clf = RandomForestClassifier()
 
 
-### Task 5: Tune your classifier to achieve better than .3 precision and recall
-### using our testing script. Check the tester.py script in the final project
-### folder for details on the evaluation method, especially the test_classifier
-### function. Because of the small size of the dataset, the script uses
-### stratified shuffle split cross validation. For more info:
-### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
+"""
+Algorithm tuning
+The evaluation methods of choice are accuracy, precision and recall.
+The following function will return the values for each of those.
+"""
 
 ### evaluation script using a 0.3 test split and evaluating based on precison & recall
 # def evaluate_clf(clf, features, labels, num_iters=1000, test_size=0.3):
@@ -159,6 +192,12 @@ labels, features = targetFeatureSplit(data)
 # evaluate_clf(s_clf, features, labels)
 # evaluate_clf(rf_clf, features, labels)
 
+"""
+Final Alogrithm Definition
+SVC was identified as the best perfoming algorithm. After tweaking the parameters
+systematically the following achieved precision & recall values above 0.3.
+For further details see notebook.
+"""
 
 clf = SVC(kernel='rbf', C=2000,gamma = 0.0001,random_state = 42, class_weight = 'auto')
 
