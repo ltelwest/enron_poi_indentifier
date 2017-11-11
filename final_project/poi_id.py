@@ -10,7 +10,13 @@ sys.path.append("../tools/")
 from feature_format import featureFormat, targetFeatureSplit
 from tester import dump_classifier_and_data
 from tester import test_classifier
-
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn import cross_validation
+from sklearn.cluster import KMeans
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -65,11 +71,15 @@ df['sent_to_poi_ratio'] = df['from_this_person_to_poi'] / df['from_messages']
 df['shared_receipt_with_poi_ratio'] = df['shared_receipt_with_poi'] / df['to_messages']
 # add labels to df
 features_email_new = ['recieved_from_poi_ratio', 'sent_to_poi_ratio', 'shared_receipt_with_poi_ratio']
-features_all = features_list + features_email_new
+features_new = features_finance + features_email_new
+features_basic = features_finance + features_email
 
+### Feature scaling
 # log scaling
 for f in features_list:
     df[f] = [np.log(abs(v)) if v != 0 else 0 for v in df[f]]
+
+### Imputation
 # replace null values
 df.replace(0, np.NaN)
 df.fillna(df.mean(), inplace=True)
@@ -81,7 +91,16 @@ my_dataset = df.to_dict(orient='index')
 ### Extract features and labels from dataset for local testing
 
 #Select the labels
-my_feature_list = ['poi'] + features_email + features_finance
+### Uncomment to select different feature sets and benchmark them
+# basic
+my_feature_list = ['poi'] + features_basic
+
+# new
+# my_feature_list = ['poi'] + features_new
+
+# selected
+# my_feature_list = ['poi'] + features_selected
+
 # my_feature_list = ['poi'] + ['from_poi_to_this_person'] + ['shared_receipt_with_poi'] + ['restricted_stock'] + ['exercised_stock_options'] + ['bonus']
 # print my_feature_list[1]
 
@@ -96,9 +115,11 @@ labels, features = targetFeatureSplit(data)
 ### you'll need to use Pipelines. For more info:
 ### http://scikit-learn.org/stable/modules/pipeline.html
 
-# Provided to give you a starting point. Try a variety of classifiers.
-from sklearn.svm import SVC
-clf = SVC(kernel='rbf', C=2000,gamma = 0.0001,random_state = 42, class_weight = 'auto')
+### selection of classifiers
+# k_clf = KMeans()
+# s_clf = SVC()
+# rf_clf = RandomForestClassifier()
+
 
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall
 ### using our testing script. Check the tester.py script in the final project
@@ -106,6 +127,40 @@ clf = SVC(kernel='rbf', C=2000,gamma = 0.0001,random_state = 42, class_weight = 
 ### function. Because of the small size of the dataset, the script uses
 ### stratified shuffle split cross validation. For more info:
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
+
+### evaluation script using a 0.3 test split and evaluating based on precison & recall
+# def evaluate_clf(clf, features, labels, num_iters=1000, test_size=0.3):
+#     print clf
+#     accuracy = []
+#     precision = []
+#     recall = []
+#     first = True
+#     for trial in range(num_iters):
+#         features_train, features_test, labels_train, labels_test =\
+#             cross_validation.train_test_split(features, labels, test_size=test_size)
+#         clf.fit(features_train, labels_train)
+#         predictions = clf.predict(features_test)
+#         accuracy.append(accuracy_score(labels_test, predictions))
+#         precision.append(precision_score(labels_test, predictions))
+#         recall.append(recall_score(labels_test, predictions))
+#         if trial % 10 == 0:
+#             if first:
+#                 sys.stdout.write('\nProcessing')
+#             sys.stdout.write('.')
+#             sys.stdout.flush()
+#             first = False
+#
+#     print "done.\n"
+#     print "precision: {}".format(mean(precision))
+#     print "recall:    {}".format(mean(recall))
+#     return mean(precision), mean(recall)
+#
+# evaluate_clf(k_clf, features, labels)
+# evaluate_clf(s_clf, features, labels)
+# evaluate_clf(rf_clf, features, labels)
+
+
+clf = SVC(kernel='rbf', C=2000,gamma = 0.0001,random_state = 42, class_weight = 'auto')
 
 # For more details about other algorithms used please go to the algorithms
 # section in poi_id.ipynb
